@@ -1,0 +1,24 @@
+baseURL = 'https://zcar.tech/'
+languageCode = 'zh-cn'
+title = 'Z小时光'
+theme = 'hugo-theme-cleanwhite'
+preserveTaxonomyNames = true
+hasCJKLanguage = true
+
+[pagination]
+  pagerSize = 5
+
+[outputs]
+home = ["HTML", "RSS"]
+
+[params]
+  omit_categories = false
+  featured_tags = true
+  featured_condition_size = 1
+  [params.social]
+  email = "jasper.zsh@hotmail.com"
+  github = "https://github.com/jasper-zsh"
+
+  [[params.additional_menus]]
+  title =  "ARCHIVE"
+  href =  "/archive/"
