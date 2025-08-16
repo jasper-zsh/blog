@@ -1,0 +1,7 @@
+main:
+- name: Tags
+  pageRef: /tags
+  weight: 1
+- name: Tech
+  pageRef: /tech
+  weight: 10

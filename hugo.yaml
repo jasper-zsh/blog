@@ -1,33 +1,32 @@
-baseURL: 'https://zcar.tech/'
-defaultContentLanguage: 'zh-hans'
+baseURL: 'https://sihao.pro/'
+defaultContentLanguage: 'zh'
 title: 'Z小时光'
 theme: 'PaperMod'
-sectionPagesMenu: main
+sectionPagesMenu: true
 
-menu:
-  main:
-    - identifier: categories
-      name: Categories
-      url: /categories/
-      weight: 10
-    - identifier: archive
-      name: Archive
-      url: /archive/
-      weight: 10
+languages:
+  en:
+    title: OldZhang's time
+    params:
+      homeInfoParams:
+        content: Articles for english site are tanslated by llm.
+  zh: {}
 
 params:
   env: production
   author: "张思浩 (老张)"
   description: "张思浩的博客，分享原创技术文章、自驾、越野、改装车（BJ40、斯巴鲁BRZ）等内容。"
   keywords: ["张思浩", "老张", "博客", "技术", "自驾", "越野", "改装车", "BJ40", "斯巴鲁BRZ", "后端", "嵌入式", "AI", "安卓"]
-  header_title: "Z小时光"
-  header_subtitle: "记录技术、自驾与生活"
-  omit_categories: false
-  featured_tags: true
-  featured_condition_size: 1
+  homeInfoParams:
+    content: 潜水，越野，非主流技术人
+  socialIcons:
+  - name: github
+    url: https://github.com/jasper-zsh
+  - name: email
+    url: mailto:jasper.zsh@hotmail.com
+  showReadingTime: true
+  showToc: true
+  showCodeCopyButtons: true
   social:
     email: "jasper.zsh@hotmail.com"
     github: "https://github.com/jasper-zsh"
-  additional_menus:
-    - title: "ARCHIVE"
-      href: "/archive/"
