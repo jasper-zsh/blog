@@ -1,0 +1,33 @@
+baseURL: 'https://zcar.tech/'
+defaultContentLanguage: 'zh-hans'
+title: 'Z小时光'
+theme: 'PaperMod'
+sectionPagesMenu: main
+
+menu:
+  main:
+    - identifier: categories
+      name: Categories
+      url: /categories/
+      weight: 10
+    - identifier: archive
+      name: Archive
+      url: /archive/
+      weight: 10
+
+params:
+  env: production
+  author: "张思浩 (老张)"
+  description: "张思浩的博客，分享原创技术文章、自驾、越野、改装车（BJ40、斯巴鲁BRZ）等内容。"
+  keywords: ["张思浩", "老张", "博客", "技术", "自驾", "越野", "改装车", "BJ40", "斯巴鲁BRZ", "后端", "嵌入式", "AI", "安卓"]
+  header_title: "Z小时光"
+  header_subtitle: "记录技术、自驾与生活"
+  omit_categories: false
+  featured_tags: true
+  featured_condition_size: 1
+  social:
+    email: "jasper.zsh@hotmail.com"
+    github: "https://github.com/jasper-zsh"
+  additional_menus:
+    - title: "ARCHIVE"
+      href: "/archive/"

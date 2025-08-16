@@ -1,0 +1,27 @@
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 仅在 zcar.tech 域名及其子域下显示备案信息
+    if (window.location.hostname === 'zcar.tech' || window.location.hostname.endsWith('.zcar.tech')) {
+      const footer = document.querySelector('footer.footer');
+      if (footer) {
+        const beianContainer = document.createElement('div');
+        
+        const beianLink = document.createElement('a');
+        beianLink.href = 'https://beian.miit.gov.cn/';
+        beianLink.target = '_blank';
+        beianLink.rel = 'noopener';
+        beianLink.textContent = '粤ICP备2023070668号';
+        
+        beianContainer.appendChild(beianLink);
+        
+        // Insert as the first child of the footer
+        if (footer.firstChild) {
+          footer.insertBefore(beianContainer, footer.firstChild);
+        } else {
+          footer.appendChild(beianContainer);
+        }
+      }
+    }
+  });
+</script>
