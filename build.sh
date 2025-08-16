@@ -59,11 +59,7 @@ main() {
   fi
 
   # Build the site
-  # echo "Building the site..."
-  # hugo --gc --minify
-  
-  echo "Hugo dependencies downloaded successfully."
-
+  echo "Building the site..."
 }
 
 set -euo pipefail
