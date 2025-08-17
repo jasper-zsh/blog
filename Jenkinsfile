@@ -1,7 +1,17 @@
 pipeline {
   agent {
     kubernetes {
-      inheritFrom 'hugo'
+      yaml """
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+          - name: hugo
+            image: docker.zcar.tech/jasper/hugo:0.148.3-aio
+            command:
+            - cat
+            tty: true
+          """
     }
   }
   
@@ -25,7 +35,6 @@ pipeline {
     
     stage('Install Dependencies') {
       steps {
-        sh 'apk add --no-cache nodejs npm'
         sh 'npm install'
       }
     }
