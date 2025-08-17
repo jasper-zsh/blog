@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { glob } = require('glob');
 const axios = require('axios');
+const { execSync } = require('child_process');
 require('dotenv').config(); // 从.env文件加载环境变量
 
 // 配置部分
@@ -49,18 +50,40 @@ function checkTranslationExists(originalFile) {
     };
   }
   
-  // 检查文件修改时间
-  const originalStat = fs.statSync(originalFile);
-  const translationStat = fs.statSync(translationFile);
-  
-  // 如果原文件的修改时间晚于翻译文件，则需要更新
-  const needsUpdate = originalStat.mtime > translationStat.mtime;
-  
-  return {
-    exists: true,
-    needsUpdate: needsUpdate,
-    translationFile: translationFile
-  };
+  // 使用git检查文件是否更新
+  try {
+    // 获取原文件的最新提交SHA
+    const originalFileGitInfo = execSync(`git log -1 --pretty=format:"%H" -- "${originalFile}"`, { 
+      encoding: 'utf8',
+      cwd: __dirname
+    }).trim();
+    
+    // 检查翻译文件的注释中是否包含原文件的SHA
+    const translationContent = fs.readFileSync(translationFile, 'utf8');
+    const shaMatch = translationContent.match(/<!--\s*source_commit:\s*([a-f0-9]+)\s*-->/);
+    
+    // 如果翻译文件中没有SHA或者SHA不匹配，则需要更新
+    const needsUpdate = !shaMatch || shaMatch[1] !== originalFileGitInfo;
+    
+    return {
+      exists: true,
+      needsUpdate: needsUpdate,
+      translationFile: translationFile,
+      sourceCommit: originalFileGitInfo
+    };
+  } catch (error) {
+    console.warn(`无法通过git检查文件更新状态: ${error.message}`);
+    // 回退到基于修改时间的检查
+    const originalStat = fs.statSync(originalFile);
+    const translationStat = fs.statSync(translationFile);
+    const needsUpdate = originalStat.mtime > translationStat.mtime;
+    
+    return {
+      exists: true,
+      needsUpdate: needsUpdate,
+      translationFile: translationFile
+    };
+  }
 }
 
 // 调用百炼平台API进行翻译
@@ -111,7 +134,8 @@ async function translateContent(content) {
 
 // 处理单个文件的翻译
 async function processFile(originalFile) {
-  const { exists, needsUpdate, translationFile } = checkTranslationExists(originalFile);
+  const checkResult = checkTranslationExists(originalFile);
+  const { exists, needsUpdate, translationFile, sourceCommit } = checkResult;
   
   if (exists && !needsUpdate) {
     console.log(`翻译文件已存在且为最新: ${translationFile}`);
@@ -131,8 +155,16 @@ async function processFile(originalFile) {
     // 调用翻译API
     const translatedContent = await translateContent(content);
     
+    // 在翻译文件中添加原文件的git提交SHA
+    let finalContent = translatedContent;
+    if (sourceCommit) {
+      // 将SHA添加到文件开头作为注释
+      finalContent = `<!-- source_commit: ${sourceCommit} -->
+${translatedContent}`;
+    }
+    
     // 写入翻译文件
-    fs.writeFileSync(translationFile, translatedContent, 'utf8');
+    fs.writeFileSync(translationFile, finalContent, 'utf8');
     console.log(`翻译完成: ${translationFile}`);
   } catch (error) {
     console.error(`翻译失败 ${originalFile}:`, error.message);
