@@ -34,14 +34,31 @@ async function scanMarkdownFiles() {
   return originalFiles;
 }
 
-// 检查翻译文件是否存在
+// 检查翻译文件是否存在且是否需要更新
 function checkTranslationExists(originalFile) {
   const dir = path.dirname(originalFile);
   const basename = path.basename(originalFile, '.md');
   const translationFile = path.join(dir, `${basename}.${TARGET_LANG}.md`);
   
+  // 如果翻译文件不存在，直接返回
+  if (!fs.existsSync(translationFile)) {
+    return {
+      exists: false,
+      needsUpdate: true,
+      translationFile: translationFile
+    };
+  }
+  
+  // 检查文件修改时间
+  const originalStat = fs.statSync(originalFile);
+  const translationStat = fs.statSync(translationFile);
+  
+  // 如果原文件的修改时间晚于翻译文件，则需要更新
+  const needsUpdate = originalStat.mtime > translationStat.mtime;
+  
   return {
-    exists: fs.existsSync(translationFile),
+    exists: true,
+    needsUpdate: needsUpdate,
     translationFile: translationFile
   };
 }
@@ -94,14 +111,18 @@ async function translateContent(content) {
 
 // 处理单个文件的翻译
 async function processFile(originalFile) {
-  const { exists, translationFile } = checkTranslationExists(originalFile);
+  const { exists, needsUpdate, translationFile } = checkTranslationExists(originalFile);
   
-  if (exists) {
-    console.log(`翻译文件已存在: ${translationFile}`);
+  if (exists && !needsUpdate) {
+    console.log(`翻译文件已存在且为最新: ${translationFile}`);
     return;
   }
   
-  console.log(`正在翻译: ${originalFile}`);
+  if (exists && needsUpdate) {
+    console.log(`原文件已更新，重新翻译: ${originalFile}`);
+  } else {
+    console.log(`正在翻译: ${originalFile}`);
+  }
   
   try {
     // 读取原始文件内容
