@@ -22,19 +22,6 @@ pipeline {
   }
   
   stages {
-    stage('Configure Git') {
-      steps {
-        container('hugo') {
-          sh 'git config core.quotepath false'
-          script {
-            if (sh(script: 'git rev-parse --is-shallow-repository', returnStdout: true).trim() == 'true') {
-              sh 'git fetch --unshallow'
-            }
-          }
-        }
-      }
-    }
-    
     stage('Install Dependencies') {
       steps {
         container('hugo') {
