@@ -7,7 +7,7 @@ pipeline {
         spec:
           containers:
           - name: hugo
-            image: docker.zcar.tech/jasper/hugo:0.148.3-aio
+            image: docker.zcar.tech/jasper/hugo:0.148.2-aio
             command:
             - cat
             tty: true
