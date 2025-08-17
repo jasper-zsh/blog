@@ -22,6 +22,7 @@ pipeline {
     HUGO_VERSION = '0.148.2'
     TZ = 'Asia/Chongqing'
     DASHSCOPE_API_KEY = credentials('Dashscope')
+    CLOUDFLARE_API_TOKEN = credentials('cloudflare_workers')
   }
   
   stages {
@@ -83,14 +84,22 @@ pipeline {
         }
       }
     }
+    
+    stage('Deploy to Cloudflare') {
+      steps {
+        container('hugo') {
+          sh 'npx wrangler deploy'
+        }
+      }
+    }
   }
   
   post {
     success {
-      echo 'Build completed successfully.'
+      echo 'Build and deployment completed successfully.'
     }
     failure {
-      echo 'Build failed.'
+      echo 'Build or deployment failed.'
     }
   }
 }
