@@ -1,5 +1,9 @@
 pipeline {
-  agent any
+  agent {
+    kubernetes {
+      inheritFrom 'hugo'
+    }
+  }
   
   environment {
     HUGO_VERSION = '0.148.2'
@@ -23,6 +27,7 @@ pipeline {
         script {
           // Install Node.js dependencies if needed
           if (!fileExists('node_modules')) {
+            sh 'apk add --no-cache nodejs npm'
             sh 'npm install'
           }
           
@@ -46,28 +51,6 @@ pipeline {
           
           // Continue with Hugo installation and build if no updates
           echo 'No translation updates. Continuing with Hugo installation and build...'
-        }
-      }
-    }
-    
-    stage('Install Hugo') {
-      steps {
-        script {
-          echo "Installing Hugo ${HUGO_VERSION}..."
-          sh "curl -sLJO https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
-          sh 'mkdir -p "${HOME}/.local/hugo"'
-          sh 'tar -C "${HOME}/.local/hugo" -xf "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"'
-          sh 'rm "hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"'
-          sh 'export PATH="${HOME}/.local/hugo:${PATH}"'
-        }
-      }
-    }
-    
-    stage('Verify Installation') {
-      steps {
-        script {
-          echo 'Verifying installation...'
-          sh 'hugo version'
         }
       }
     }
