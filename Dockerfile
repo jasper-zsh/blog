@@ -49,23 +49,4 @@ RUN curl -sL -o node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NO
     ln -s /usr/local/node-v${NODE_VERSION}-linux-x64/bin/npm /usr/local/bin/npm && \
     ln -s /usr/local/node-v${NODE_VERSION}-linux-x64/bin/npx /usr/local/bin/npx
 
-# 验证安装
-RUN echo "Dart Sass: $(sass --version)" && \
-    echo "Go: $(go version)" && \
-    echo "Hugo: $(hugo version)" && \
-    echo "Node.js: $(node --version)" && \
-    echo "npm: $(npm --version)" && \
-    echo "npx: $(npx --version)"
-
-# 设置时区
-ENV TZ=Asia/Chongqing
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# 配置Git
-RUN git config --global core.quotepath false
-
-# 暴露Hugo默认端口
-EXPOSE 1313
-
-# 默认命令
-CMD ["bash"]
+RUN npm install -g wrangler
