@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { glob } = require('glob');
 const axios = require('axios');
-const { execSync } = require('child_process');
+const crypto = require('crypto');
 require('dotenv').config(); // 从.env文件加载环境变量
 
 // 配置部分
@@ -15,6 +15,14 @@ const MODEL_ID = 'qwen-plus'; // 使用的模型ID
 if (!API_KEY) {
   console.error('请设置DASHSCOPE_API_KEY环境变量');
   process.exit(1);
+}
+
+// 计算文件的SHA256哈希值
+function calculateFileHash(filePath) {
+  const fileBuffer = fs.readFileSync(filePath);
+  const hashSum = crypto.createHash('sha256');
+  hashSum.update(fileBuffer);
+  return hashSum.digest('hex');
 }
 
 // 扫描所有Markdown文件
@@ -50,40 +58,24 @@ function checkTranslationExists(originalFile) {
     };
   }
   
-  // 使用git检查文件是否更新
-  try {
-    // 获取原文件的最新提交SHA
-    const originalFileGitInfo = execSync(`git log -1 --pretty=format:"%H" -- "${originalFile}"`, { 
-      encoding: 'utf8',
-      cwd: __dirname
-    }).trim();
-    
-    // 检查翻译文件的注释中是否包含原文件的SHA
-    const translationContent = fs.readFileSync(translationFile, 'utf8');
-    const shaMatch = translationContent.match(/<!--\s*source_commit:\s*([a-f0-9]+)\s*-->/);
-    
-    // 如果翻译文件中没有SHA或者SHA不匹配，则需要更新
-    const needsUpdate = !shaMatch || shaMatch[1] !== originalFileGitInfo;
-    
-    return {
-      exists: true,
-      needsUpdate: needsUpdate,
-      translationFile: translationFile,
-      sourceCommit: originalFileGitInfo
-    };
-  } catch (error) {
-    console.warn(`无法通过git检查文件更新状态: ${error.message}`);
-    // 回退到基于修改时间的检查
-    const originalStat = fs.statSync(originalFile);
-    const translationStat = fs.statSync(translationFile);
-    const needsUpdate = originalStat.mtime > translationStat.mtime;
-    
-    return {
-      exists: true,
-      needsUpdate: needsUpdate,
-      translationFile: translationFile
-    };
-  }
+  // 计算原文件的哈希值
+  const originalFileHash = calculateFileHash(originalFile);
+  
+  // 读取翻译文件内容
+  const translationContent = fs.readFileSync(translationFile, 'utf8');
+  
+  // 检查翻译文件的YAML头部是否包含源文件的哈希值
+  const hashMatch = translationContent.match(/source_hash:\s*([a-f0-9]+)/);
+  
+  // 如果翻译文件中没有哈希或者哈希不匹配，则需要更新
+  const needsUpdate = !hashMatch || hashMatch[1] !== originalFileHash;
+  
+  return {
+    exists: true,
+    needsUpdate: needsUpdate,
+    translationFile: translationFile,
+    sourceHash: originalFileHash
+  };
 }
 
 // 调用百炼平台API进行翻译
@@ -135,11 +127,11 @@ async function translateContent(content) {
 // 处理单个文件的翻译
 async function processFile(originalFile) {
   const checkResult = checkTranslationExists(originalFile);
-  const { exists, needsUpdate, translationFile, sourceCommit } = checkResult;
+  const { exists, needsUpdate, translationFile, sourceHash } = checkResult;
   
   if (exists && !needsUpdate) {
     console.log(`翻译文件已存在且为最新: ${translationFile}`);
-    return;
+    return false; // 没有更新
   }
   
   if (exists && needsUpdate) {
@@ -155,19 +147,42 @@ async function processFile(originalFile) {
     // 调用翻译API
     const translatedContent = await translateContent(content);
     
-    // 在翻译文件中添加原文件的git提交SHA
+    // 解析YAML头部和正文
+    let yamlHeader = '';
+    let markdownContent = translatedContent;
+    
+    // 检查是否有YAML头部
+    if (translatedContent.startsWith('---')) {
+      const endOfYaml = translatedContent.indexOf('---', 3);
+      if (endOfYaml > 0) {
+        yamlHeader = translatedContent.substring(0, endOfYaml + 3);
+        markdownContent = translatedContent.substring(endOfYaml + 3).trim();
+      }
+    }
+    
+    // 如果有YAML头部，添加source_hash字段
     let finalContent = translatedContent;
-    if (sourceCommit) {
-      // 将SHA添加到文件开头作为注释
-      finalContent = `<!-- source_commit: ${sourceCommit} -->
-${translatedContent}`;
+    if (yamlHeader) {
+      // 检查是否已存在source_hash字段
+      if (yamlHeader.includes('source_hash:')) {
+        // 更新现有的source_hash
+        finalContent = yamlHeader.replace(/source_hash:\s*[a-f0-9]+/, `source_hash: ${sourceHash}`) + '\n' + markdownContent;
+      } else {
+        // 添加新的source_hash字段
+        finalContent = yamlHeader.replace('---', `---\nsource_hash: ${sourceHash}`) + '\n' + markdownContent;
+      }
+    } else {
+      // 如果没有YAML头部，添加一个包含source_hash的新头部
+      finalContent = `---\nsource_hash: ${sourceHash}\n---\n${translatedContent}`;
     }
     
     // 写入翻译文件
     fs.writeFileSync(translationFile, finalContent, 'utf8');
     console.log(`翻译完成: ${translationFile}`);
+    return true; // 有更新
   } catch (error) {
     console.error(`翻译失败 ${originalFile}:`, error.message);
+    process.exit(127); // 翻译出错时使用127退出
   }
 }
 
@@ -177,14 +192,28 @@ async function main() {
     const files = await scanMarkdownFiles();
     console.log(`找到 ${files.length} 个Markdown文件`);
     
+    let hasUpdates = false;
+    
     for (const file of files) {
-      await processFile(file);
+      const updated = await processFile(file);
+      if (updated) {
+        hasUpdates = true;
+      }
     }
     
     console.log('所有文件处理完成');
+    
+    // 如果有文件更新，退出码为1，否则为0
+    if (hasUpdates) {
+      console.log('检测到文件更新');
+      process.exit(1);
+    } else {
+      console.log('没有文件需要更新');
+      process.exit(0);
+    }
   } catch (error) {
     console.error('处理过程中出错:', error.message);
-    process.exit(1);
+    process.exit(127);
   }
 }
 
