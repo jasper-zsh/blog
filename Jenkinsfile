@@ -14,8 +14,8 @@ pipeline {
   stages {
     stage('Configure Git') {
       steps {
+        sh 'git config core.quotepath false'
         script {
-          sh 'git config core.quotepath false'
           if (sh(script: 'git rev-parse --is-shallow-repository', returnStdout: true).trim() == 'true') {
             sh 'git fetch --unshallow'
           }
@@ -23,11 +23,16 @@ pipeline {
       }
     }
     
+    stage('Install Dependencies') {
+      steps {
+        sh 'apk add --no-cache nodejs npm'
+        sh 'npm install'
+      }
+    }
+    
     stage('Run Translation') {
       steps {
         script {
-          sh 'npm install'
-          
           // Run translation script
           def translateExitCode = sh(script: 'node translate.js', returnStatus: true)
           
@@ -54,24 +59,17 @@ pipeline {
     
     stage('Build Site') {
       steps {
-        script {
-          echo 'Building the site...'
-          sh 'hugo --gc --minify'
-        }
+        sh 'hugo --gc --minify'
       }
     }
   }
   
   post {
     success {
-      script {
-        echo 'Build completed successfully.'
-      }
+      echo 'Build completed successfully.'
     }
     failure {
-      script {
-        echo 'Build failed.'
-      }
+      echo 'Build failed.'
     }
   }
 }
