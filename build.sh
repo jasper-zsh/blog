@@ -38,9 +38,11 @@ main() {
     echo "Translation updates detected. Committing changes..."
     # Add updated translation files
     git add content/**/*.en.md
-    # Commit changes
-    git commit -m "Update translated files"
-    echo "Translation updates committed. Exiting."
+    # Commit changes with AI tag
+    git commit -m "Update translated files [AI]"
+    # Push changes
+    git push
+    echo "Translation updates committed and pushed. Exiting."
     exit 0
   elif [ $TRANSLATE_EXIT_CODE -eq 127 ]; then
     echo "Translation script failed with errors. Exiting."
