@@ -8,6 +8,7 @@ pipeline {
   environment {
     HUGO_VERSION = '0.148.2'
     TZ = 'Asia/Chongqing'
+    DASHSCOPE_API_KEY = credentials('Dashscope')
   }
   
   stages {
