@@ -59,7 +59,14 @@ pipeline {
               echo 'Translation updates detected. Committing changes...'
               sh 'git add content/**/*.en.md'
               sh 'git commit -m "Update translated files [AI]"'
-              sh 'git push origin ${GIT_BRANCH}'
+              // Configure Git credentials for push
+              withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                sh '''
+                  git config --global credential.helper store
+                  echo "https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com" > ~/.git-credentials
+                  git push origin ${GIT_BRANCH}
+                '''
+              }
               echo 'Translation updates committed and pushed. Exiting.'
               currentBuild.result = 'SUCCESS'
               return
