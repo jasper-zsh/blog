@@ -47,7 +47,7 @@ pipeline {
       }
     }
     
-    stage('Run Translation') {
+    stage('Build and deploy') {
       steps {
         container('hugo') {
           script {
@@ -64,7 +64,7 @@ pipeline {
                 sh '''
                   git config --global credential.helper store
                   echo "https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com" > ~/.git-credentials
-                  git push origin ${GIT_BRANCH}
+                  git push origin HEAD:${GIT_BRANCH}
                 '''
               }
               echo 'Translation updates committed and pushed. Exiting.'
@@ -77,25 +77,11 @@ pipeline {
             }
             
             // Continue with Hugo installation and build if no updates
-            echo 'No translation updates. Continuing with Hugo installation and build...'
-          }
-        }
-      }
-    }
-    
-    stage('Build Site') {
-      steps {
-        container('hugo') {
-          sh 'hugo --gc --minify'
-        }
-      }
-    }
-    
-    stage('Deploy to Cloudflare') {
-      steps {
-        container('hugo') {
-          withCredentials([usernamePassword(credentialsId: 'cloudflare_workers', usernameVariable: 'CLOUDFLARE_ACCOUNT_ID', passwordVariable: 'CLOUDFLARE_API_TOKEN')]) {
-            sh 'npx wrangler deploy'
+            echo 'No translation updates. Continuing with Hugo build...'
+            sh 'hugo --gc --minify'
+            withCredentials([usernamePassword(credentialsId: 'cloudflare_workers', usernameVariable: 'CLOUDFLARE_ACCOUNT_ID', passwordVariable: 'CLOUDFLARE_API_TOKEN')]) {
+              sh 'npx wrangler deploy'
+            }
           }
         }
       }
