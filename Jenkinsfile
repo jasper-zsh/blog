@@ -26,11 +26,7 @@ pipeline {
     stage('Run Translation') {
       steps {
         script {
-          // Install Node.js dependencies if needed
-          if (!fileExists('node_modules')) {
-            sh 'apk add --no-cache nodejs npm'
-            sh 'npm install'
-          }
+          sh 'npm install'
           
           // Run translation script
           def translateExitCode = sh(script: 'node translate.js', returnStatus: true)
