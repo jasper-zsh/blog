@@ -22,8 +22,6 @@ pipeline {
     HUGO_VERSION = '0.148.2'
     TZ = 'Asia/Chongqing'
     DASHSCOPE_API_KEY = credentials('Dashscope')
-    CLOUDFLARE_ACCOUNT_ID = credentials('cloudflare_workers').username
-    CLOUDFLARE_API_TOKEN = credentials('cloudflare_workers').password
   }
   
   stages {
@@ -89,7 +87,9 @@ pipeline {
     stage('Deploy to Cloudflare') {
       steps {
         container('hugo') {
-          sh 'npx wrangler deploy'
+          withCredentials([usernamePassword(credentialsId: 'cloudflare_workers', usernameVariable: 'CLOUDFLARE_ACCOUNT_ID', passwordVariable: 'CLOUDFLARE_API_TOKEN')]) {
+            sh 'npx wrangler deploy'
+          }
         }
       }
     }
