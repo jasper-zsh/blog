@@ -57,14 +57,16 @@ pipeline {
             // If there are updates, commit them and exit
             if (translateExitCode == 1) {
               echo 'Translation updates detected. Committing changes...'
-              sh 'git add content/**/*.en.md'
-              sh 'git commit -m "Update translated files [AI]"'
               // Configure Git credentials for push
               withCredentials([usernamePassword(credentialsId: 'Github', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                 sh '''
                   git config --global credential.helper store
                   echo "https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com" > ~/.git-credentials
-                  git push origin HEAD:${GIT_BRANCH}
+                  git checkout ${GIT_BRANCH}
+                  git add content/**/*.en.md
+                  git commit -m "Update translated files [AI]"
+                  BRANCH_NAME=$(echo $GIT_BRANCH|cut -d '/' -f2)
+                  git push origin HEAD:$BRANCH_NAME
                 '''
               }
               echo 'Translation updates committed and pushed. Exiting.'
