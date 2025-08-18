@@ -80,6 +80,7 @@ pipeline {
             
             // Continue with Hugo installation and build if no updates
             echo 'No translation updates. Continuing with Hugo build...'
+            sh 'git submodule init'
             sh 'hugo --gc --minify'
             withCredentials([usernamePassword(credentialsId: 'cloudflare_workers', usernameVariable: 'CLOUDFLARE_ACCOUNT_ID', passwordVariable: 'CLOUDFLARE_API_TOKEN')]) {
               sh 'npx wrangler deploy'

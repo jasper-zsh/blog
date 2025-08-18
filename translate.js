@@ -127,7 +127,10 @@ async function translateContent(content) {
 // 处理单个文件的翻译
 async function processFile(originalFile) {
   const checkResult = checkTranslationExists(originalFile);
-  const { exists, needsUpdate, translationFile, sourceHash } = checkResult;
+  const { exists, needsUpdate, translationFile } = checkResult;
+  
+  // 计算原文件的哈希值
+  const originalFileHash = calculateFileHash(originalFile);
   
   if (exists && !needsUpdate) {
     console.log(`翻译文件已存在且为最新: ${translationFile}`);
@@ -166,14 +169,14 @@ async function processFile(originalFile) {
       // 检查是否已存在source_hash字段
       if (yamlHeader.includes('source_hash:')) {
         // 更新现有的source_hash
-        finalContent = yamlHeader.replace(/source_hash:\s*[a-f0-9]+/, `source_hash: ${sourceHash}`) + '\n' + markdownContent;
+        finalContent = yamlHeader.replace(/source_hash:\s*[a-f0-9]+/, `source_hash: ${originalFileHash}`) + '\n' + markdownContent;
       } else {
         // 添加新的source_hash字段
-        finalContent = yamlHeader.replace('---', `---\nsource_hash: ${sourceHash}`) + '\n' + markdownContent;
+        finalContent = yamlHeader.replace('---', `---\nsource_hash: ${originalFileHash}`) + '\n' + markdownContent;
       }
     } else {
       // 如果没有YAML头部，添加一个包含source_hash的新头部
-      finalContent = `---\nsource_hash: ${sourceHash}\n---\n${translatedContent}`;
+      finalContent = `---\nsource_hash: ${originalFileHash}\n---\n${translatedContent}`;
     }
     
     // 写入翻译文件
