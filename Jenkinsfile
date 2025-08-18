@@ -8,6 +8,7 @@ pipeline {
           containers:
           - name: hugo
             image: docker.zcar.tech/jasper/hugo:0.148.2-aio-1
+	    imagePullPolicy: IfNotPresent
             command:
             - cat
             tty: true
