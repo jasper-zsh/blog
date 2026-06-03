@@ -1,0 +1,28 @@
+{{- define "main" }}
+
+{{- if .Title }}
+<header class="page-header">
+    <h1>{{ .Title }}</h1>
+    {{- if .Description }}
+    <div class="post-description">
+        {{ .Description }}
+    </div>
+    {{- end }}
+</header>
+{{- end }}
+
+<ul class="terms-tags">
+    {{- $type := .Type }}
+    {{- range $key, $value := .Data.Terms.Alphabetical }}
+    {{- $name := .Name }}
+    {{- $count := .Count }}
+    {{- with site.GetPage (printf "/%s/%s" $type $name) }}
+    <li>
+        {{- /* 自定义：用 .LinkTitle 取 _index.md 的本地化标题，而非原始 slug */ -}}
+        <a href="{{ .Permalink }}">{{ .LinkTitle }} <sup><strong><sup>{{ $count }}</sup></strong></sup> </a>
+    </li>
+    {{- end }}
+    {{- end }}
+</ul>
+
+{{- end }}{{/* end main */ -}}
