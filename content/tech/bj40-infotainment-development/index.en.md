@@ -1,14 +1,12 @@
 ---
-source_hash: ed4dce7eda6879b941f36e31adb96fda4c5bb50d346e943c6394da33726c9232
-share: true
+source_hash: 85ce346335a0579c94071e7f2870495c5d30fcadd1007c81369c3e927675c692
 title: BJ40 Car Infotainment System Development
 author: JasperZ
-section: tech
+date: 2025-08-14T16:43:00+08:00
 tags:
   - BJ40
   - Android
-date: 2025-08-14T16:43:00
-layout: post
+draft: false
 ---
 # Steering Wheel Controls
 ## ADB Logcat Analysis

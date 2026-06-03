@@ -1,13 +1,11 @@
 ---
-share: true
 title: BJ40车机开发
 author: JasperZ
-section: tech
+date: 2025-08-14T16:43:00+08:00
 tags:
   - BJ40
   - Android
-date: 2025-08-14T16:43:00
-layout: post
+draft: false
 ---
 # 方控
 ## adb logcat分析

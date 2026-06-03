@@ -2,15 +2,30 @@ baseURL: 'https://sihao.pro/'
 defaultContentLanguage: 'zh'
 title: 'Z小时光'
 theme: 'PaperMod'
-sectionPagesMenu: true
 
 languages:
   en:
     title: OldZhang's time
+    menus:
+      main:
+        - name: Tags
+          pageRef: /tags
+          weight: 1
+        - name: Tech
+          pageRef: /tech
+          weight: 10
     params:
       homeInfoParams:
         content: Articles for english site are tanslated by llm.
-  zh: {}
+  zh:
+    menus:
+      main:
+        - name: 标签
+          pageRef: /tags
+          weight: 1
+        - name: 技术
+          pageRef: /tech
+          weight: 10
 
 params:
   env: production
