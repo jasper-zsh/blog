@@ -27,9 +27,9 @@ function collectSources(dir) {
       // 形如 name.en.md 的视为译文，跳过
       const parts = entry.name.split('.');
       const isTranslation = parts.length >= 3 && parts[parts.length - 2].length <= 5;
-      // _index.md 是 section/分类列表页的元数据（标题本地化），手工维护，非文章，跳过
-      const isBranchIndex = entry.name.startsWith('_index');
-      if (!isTranslation && !isBranchIndex) out.push(full);
+      // 下划线前缀文件非文章正文，跳过：_index.* 是列表页元数据；_charter.md 是专栏内部纲领（不发布、不翻译）
+      const isInternal = entry.name.startsWith('_');
+      if (!isTranslation && !isInternal) out.push(full);
     }
   }
   return out;

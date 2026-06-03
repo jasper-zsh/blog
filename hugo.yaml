@@ -11,6 +11,9 @@ languages:
         - name: Tags
           pageRef: /tags
           weight: 1
+        - name: AI
+          pageRef: /ai
+          weight: 5
         - name: Tech
           pageRef: /tech
           weight: 10
@@ -23,6 +26,9 @@ languages:
         - name: 标签
           pageRef: /tags
           weight: 1
+        - name: AI 入门
+          pageRef: /ai
+          weight: 5
         - name: 技术
           pageRef: /tech
           weight: 10

@@ -1,0 +1,61 @@
+# CLAUDE.md
+
+本仓库是「Z小时光」个人博客的源码。本文件指导 AI 在本仓库中的写作与维护工作。
+
+## 项目概览
+
+- **技术栈**：Hugo（extended）+ PaperMod 主题，双语站点（中文为默认语言，英文为译文）。
+- **部署**：push 到 `main` 分支后，GitHub Actions 自动构建并部署到 Cloudflare Workers。**无需手动构建或部署。**
+- **本地预览**：`hugo server`（草稿加 `-D`）。本地构建：`hugo --gc --minify`。
+- **不要手改 `public/`**（构建产物）。
+
+## 两类内容：专栏 vs 散篇
+
+区分标志只有一个——**所在 section 里有没有 `_charter.md`**：
+
+| | 是什么 | 标志 | 写法 |
+|---|---|---|---|
+| **散篇** | 某个分类下的独立文章 | section 内**无** `_charter.md` | 普通文章，按日期排序，单会话完成 |
+| **专栏** | 有统一纲领的系列文章 | section 内**有** `_charter.md` | 文章带 `weight` 按章节排序 |
+
+- **散篇**分布在各**分类 section**里，`content/tech/` 只是其中之一，未来可有其他分类。直接在对应分类下新建文章即可。
+- **专栏**是带 `_charter.md` 的主题 section（如 `content/ai/`）。未来每个主题专栏各开一个顶级 section。
+
+### 写专栏文章前必须做的事
+
+**进入任何 section 写作前，先看该 section 有没有 `_charter.md`。**
+
+- **有** → 这是专栏。**先完整读 `_charter.md`**，按其中的目标、受众、风格基调、贯穿原则和章节大纲写作；写完后回头更新该章节在大纲表里的状态。
+- **无** → 当作散篇写，无需纲领。
+
+`_charter.md` 通过 frontmatter 的 `build: { render: never, list: never }` 留在内容目录但**不会发布**，是跨会话保持专栏风格统一的单一事实源。**不要删除它，也不要去掉这两个 build 选项。**
+
+## 内容组织与 frontmatter
+
+每篇文章是一个 page bundle：`content/<section>/<slug>/index.md`，配图等资源放同目录。
+
+- **slug**：用语义化、语言无关的英文短横线命名（如 `what-is-ai`），中英文共用同一目录。
+- **散篇 frontmatter**（沿用现状）：
+
+```yaml
+---
+title: 文章标题
+author: JasperZ
+date: 2026-06-03T12:00:00+08:00
+tags: [标签]
+draft: false
+---
+```
+
+- **专栏文章**：在上面基础上加 `weight` 控制章节顺序（建议 10/20/30 留间隔，便于中途插入）。**不需要** `series` 字段——归属由所在 section 决定。
+
+## 双语规则
+
+- 中文 `index.md` 是**原文**；英文 `index.en.md` 是**译文**，由 AI 翻译。
+- 译文 frontmatter 顶部需有 `source_hash`，值为对应中文原文文件的 **sha256**（用于检测原文改动后译文是否过期）。
+- 检查待翻译清单：`node scripts/check-translations.js`（退出码 0 = 全部最新，1 = 有缺译/过期）。翻译或重译后，把译文的 `source_hash` 更新为原文最新 sha256。
+- section 列表页的本地化：`_index.md`（中文标题）+ `_index.en.md`（英文标题），手工维护，不参与上述翻译追踪。
+
+## 标签
+
+标签使用语言无关 slug，本地化标题在 `content/tags/<slug>/_index.md`（中文）和 `_index.en.md`（英文）中维护。
