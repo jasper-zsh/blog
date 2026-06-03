@@ -4,5 +4,8 @@
   "description": "sihao.pro Hugo blog",
   "scripts": {
     "check-translations": "node scripts/check-translations.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.97.0"
   }
 }
