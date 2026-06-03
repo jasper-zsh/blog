@@ -1,11 +1,11 @@
 ---
-source_hash: 0acdf8950ec1e08202ab7382a811f01e701347adefe50a8b4240a1e4dce8a93c
+source_hash: 0318c47d9010c44a0d3824ce3ff0aea48bdd8ee6d620eae0412eb28141c9e1bb
 title: Analysis of Junce Coulometer Bluetooth Protocol
 author: JasperZ
 date: 2025-08-14
 tags:
-  - Car Enthusiast
-  - Embedded Development
+  - car-life
+  - embedded
 draft: false
 ---
 

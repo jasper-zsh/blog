@@ -3,8 +3,8 @@ title: 均测库仑计蓝牙协议分析
 author: JasperZ
 date: 2025-08-14
 tags:
-  - 玩车
-  - 嵌入式开发
+  - car-life
+  - embedded
 draft: false
 ---
 

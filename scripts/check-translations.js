@@ -27,7 +27,9 @@ function collectSources(dir) {
       // 形如 name.en.md 的视为译文，跳过
       const parts = entry.name.split('.');
       const isTranslation = parts.length >= 3 && parts[parts.length - 2].length <= 5;
-      if (!isTranslation) out.push(full);
+      // _index.md 是 section/分类列表页的元数据（标题本地化），手工维护，非文章，跳过
+      const isBranchIndex = entry.name.startsWith('_index');
+      if (!isTranslation && !isBranchIndex) out.push(full);
     }
   }
   return out;
