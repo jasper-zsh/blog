@@ -19,7 +19,10 @@ languages:
           weight: 10
     params:
       homeInfoParams:
-        content: Articles for english site are tanslated by llm.
+        content: |
+          Diving, off-roading, an unconventional techie.
+
+          Articles on the English site are translated by an LLM.
   zh:
     menus:
       main:
@@ -35,6 +38,9 @@ languages:
 
 params:
   env: production
+  mainSections:
+    - ai
+    - tech
   author: "张思浩 (老张)"
   description: "张思浩的博客，分享原创技术文章、自驾、越野、改装车（BJ40、斯巴鲁BRZ）等内容。"
   keywords: ["张思浩", "老张", "博客", "技术", "自驾", "越野", "改装车", "BJ40", "斯巴鲁BRZ", "后端", "嵌入式", "AI", "安卓"]

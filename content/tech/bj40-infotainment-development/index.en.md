@@ -1,11 +1,12 @@
 ---
-source_hash: 85ce346335a0579c94071e7f2870495c5d30fcadd1007c81369c3e927675c692
+source_hash: 1a3a31df7457f23fcdc57685c318164fb73ea5f20d5480625df6cdad9c273967
 title: BJ40 Car Infotainment System Development
 author: JasperZ
 date: 2025-08-14T16:43:00+08:00
 tags:
   - BJ40
   - Android
+  - car-life
 draft: false
 ---
 # Steering Wheel Controls
